@@ -1,0 +1,4 @@
+DEF(TE_BEAR,'B',"bear"),
+DEF(TE_CHEETAH,'C',"cheetah"),
+DEF(TE_COUNT,,)
+

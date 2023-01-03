@@ -1,0 +1,7 @@
+DEF(BI_MOUNTAIN, 'r',"mountain"),
+DEF(BI_SWAMP, 'b',"swamp"),
+DEF(BI_FOREST, 'g',"forest"),
+DEF(BI_PLAIN, 'w',"plain"),
+DEF(BI_ISLAND, 'u',"island"),
+DEF(BI_COUNT,,)
+

@@ -1,0 +1,5 @@
+DEF(CO_ZERO,'0',"zero"),
+DEF(CO_ONE,'1',"one"),
+DEF(CO_TWO,'2',"two"),
+DEF(CO_THREE,'3',"three"),
+DEF(CO_COUNT,,)

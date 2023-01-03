@@ -1,46 +1,61 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
+#ifndef CRYPTIDE_H
+#define CRYPTIDE_H
 #include "bitboard.h"
 
+/* GAME CONSTANTS */
+/* BIOMES */
+#define DEF(E,C,S) E
 enum biomes{
-  desert,
-  swamp,
-  sea,
-  forest,
-  mountain,
-  nb_biomes
+#include "biomes.def"
 };
 
-enum color{
-  black,
-  white,
-  green,
-  blue,
-  nb_color
+extern const char* const arr_biname[];
+extern const char arr_bichar[];
+
+/* TERRITORIES */
+enum territories{
+#include "territories.def"
 };
 
-enum structure{
-  hut,
-  stone,
-  nb_struture
+extern const char* const arr_tername[];
+extern const char arr_terchar[];
+
+/* CONSTRUCTS */
+enum constructs{
+#include "constructs.def"
 };
 
-enum territory{
-  cheetah,
-  bear,
-  nb_territory
+extern const char* const arr_ctname[];
+extern const char arr_ctchar[];
+
+/* COLORS */
+enum colors{
+#include "colors.def"
 };
 
+extern const char* const arr_colname[];
+extern const char arr_colchar[];
 
-typedef struct slot slot;
+#undef DEF
 
-struct slot {
-  uint8_t neigh[6];
-  uint32_t stuff;
-};
+typedef struct board board_s;
+struct board{
+  word biomes[BI_COUNT][BBLEN];
+  word territories[TE_COUNT][BBLEN];
+  word constructs[CT_COUNT][BBLEN];
+  word colors[CO_COUNT][BBLEN];
+}
 
-int neigh_index(size_t index, uint8_t neigh[6]);
+typedef struct clues clues_s;
+struct clues{
+  board_s * b;
+  word doublebiome[(BI_COUNT*(BI_COUNT-1))>>1][BBLEN];
+  /* +1 because of the territorry case */
+  word bioOne[BI_COUNT+1][BBLEN];
+  word terctTwo[CT_COUNT+TE_COUNT][BBLEN];
+  word colorThree[CO_COUNT][BBLEN];
+}
 
-int init_neigh(slot board[HEIGHT*WIDTH]);
+
+
+#endif

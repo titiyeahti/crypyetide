@@ -1,0 +1,3 @@
+DEF(CT_STONE,'M',"stone"),
+DEF(CT_HUT,'H',"hut"),
+DEF(CT_COUNT,,)
