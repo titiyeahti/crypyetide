@@ -1,0 +1,9 @@
+DEF(D_LEFT,-1,"left"),
+DEF(D_RIGHT,1,"right"),
+DEF(D_UPLEFT,-WIDTH-1,"up_left"),
+DEF(D_UP,-WIDTH,"up"),
+DEF(D_UPRIGHT,1-WIDTH,"up_right"),
+DEF(D_DOWNLEFT,WIDTH-1,"down_left"),
+DEF(D_DOWN,WIDTH,"down"),
+DEF(D_DOWNRIGHT,WIDTH+1,"down_right"),
+DEF(D_COUNT,,)

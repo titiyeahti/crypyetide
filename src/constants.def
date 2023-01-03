@@ -1,0 +1,9 @@
+#define WIDTH 12
+#define HEIGHT 9
+#define LENGTH (WIDTH*HEIGHT)
+#define WORDPOW 5U
+#define WORDLEN (1U<<WORDPOW)
+#define BBLEN (((LENGTH) >> WORDPOW) + \
+  (((LENGTH) & (WORDLEN-1)) && 1))
+
+typedef uint32_t word;
