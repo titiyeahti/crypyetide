@@ -2,6 +2,9 @@
 #define CRYPTIDE_H
 #include "bitboard.h"
 
+/* TODO add the number of tiles in the .def for biomes and 
+ * territories */
+
 /* GAME CONSTANTS */
 /* BIOMES */
 #define DEF(E,C,S) E
@@ -46,6 +49,11 @@ struct board{
   word colors[CO_COUNT][BBLEN];
 }
 
+board_s* new_board(void);
+void free_board(board_s* board);
+void print_board(board_s* board);
+int random_board();
+
 typedef struct clues clues_s;
 struct clues{
   board_s * b;
@@ -56,6 +64,27 @@ struct clues{
   word colorThree[CO_COUNT][BBLEN];
 }
 
+clues_s* new_clues(board_s* board);
+void free_clues(clues_s* clues);
+void print_clues(clues_s* clues);
+int init_clues(clues_s* ret, board_s* board);
+clues_s* copy_clues(clues_s* clues);
+clues_s* inverted_clues(clues_s* clues);
 
+#define TOTAL_CLUES_COUNT (((BI_COUNT*(BI_COUNT-1))>>1) \
+  + BI_COUNT + 1 \
+  + CT_COUNT + TE_COUNT \
+  + CO_COUNT)
+
+typedef struct player player_s;
+struct player{
+  word neg_answer[BBLEN];
+  word pos_answer[BBLEN];
+  /* when the clue is no longer relevant set its slot to NULL*/
+  word* valid_clues[TOTAL_CLUES_COUNT];
+  /* same as upper but not and array if no advanced clues */
+  word** valid_inv_clues; 
+  size_t nb_clues;
+}
 
 #endif
