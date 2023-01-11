@@ -36,7 +36,7 @@ int issetBB(word BB[], size_t index);
 int fixlastwordBB(word inBB[], word outBB[]);
 int init_dirBBmask(void);
 int moveBBdir(word inBB[], word outBB[], size_t d);
-int containingBB(word inBB[], word outBB[], size_t thickness);
+int adjacencyBB(word inBB[], word outBB[], size_t thickness);
 void printBB(word BB[]);
 void printhexBB(word BB[]);
 

@@ -41,13 +41,15 @@ extern const char arr_colchar[];
 
 #undef DEF
 
+/* try to proove that founding a set of clues reducing to 1 
+ * tile uis sufficient for map generation */
 typedef struct board board_s;
 struct board{
   word biomes[BI_COUNT][BBLEN];
   word territories[TE_COUNT][BBLEN];
   word constructs[CT_COUNT][BBLEN];
   word colors[CO_COUNT][BBLEN];
-}
+};
 
 board_s* new_board(void);
 void free_board(board_s* board);
@@ -62,7 +64,7 @@ struct clues{
   word bioOne[BI_COUNT+1][BBLEN];
   word terctTwo[CT_COUNT+TE_COUNT][BBLEN];
   word colorThree[CO_COUNT][BBLEN];
-}
+};
 
 clues_s* new_clues(board_s* board);
 void free_clues(clues_s* clues);
@@ -85,6 +87,19 @@ struct player{
   /* same as upper but not and array if no advanced clues */
   word** valid_inv_clues; 
   size_t nb_clues;
-}
+};
+
+typedef struct game game_s;
+struct game{
+	player_s* players;
+	board* board;
+};
+
+/* return the index of wining player or -1 if game break*/
+int run(game_s* g);
+
+/* multi
+ * display
+ */
 
 #endif

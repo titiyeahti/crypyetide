@@ -178,7 +178,7 @@ int moveBBdir(word inBB[], word outBB[], size_t d){
   return 0;
 }
 
-int containingBB(word inBB[], word outBB[], size_t thickness){
+int adjacencyBB(word inBB[], word outBB[], size_t thickness){
   copyBB(outBB, inBB);
   for(size_t i = 0; i<thickness; i++){
     word accBB[BBLEN] = {0};

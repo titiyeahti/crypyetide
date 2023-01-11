@@ -14,7 +14,7 @@ int main(){
   
   printBB(testBB);
 
-  containingBB(testBB, testBB, 3);
+  adjacencyBB(testBB, testBB, 3);
   return 0;
 }
 
