@@ -5,7 +5,7 @@ int main(){
   word bBB[BBLEN]={0};
   
   for(size_t i=D_LEFT; i<D_COUNT; i++)
-    printf("direction[%u] = %d, %s\n", i, arr_dir[i], arr_dirname[i]);
+    printf("direction[%lu] = %d, %s\n", i, arr_dir[i], arr_dirname[i]);
 
   putc('\n', stdout);
 

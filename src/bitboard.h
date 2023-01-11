@@ -31,6 +31,7 @@ int negBB(word inBB[], word outBB[]);
 int copyBB(word destBB[], word srcBB[]);
 int setBB(word inBB[], word outBB[], size_t index);
 int unsetBB(word inBB[], word outBB[], size_t index);
+int flushBB(word inBB[]);
 int equalsBB(word aBB[], word bBB[]);
 int issetBB(word BB[], size_t index);
 int fixlastwordBB(word inBB[], word outBB[]);

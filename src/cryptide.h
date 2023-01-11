@@ -3,7 +3,7 @@
 #include "bitboard.h"
 
 /* TODO add the number of tiles in the .def for biomes and 
- * territories */
+ * territories maybe */
 
 /* GAME CONSTANTS */
 /* BIOMES */
@@ -19,6 +19,8 @@ extern const char arr_bichar[];
 enum territories{
 #include "territories.def"
 };
+
+#define TILES_PER_ANNIMAL 8
 
 extern const char* const arr_tername[];
 extern const char arr_terchar[];
@@ -52,18 +54,33 @@ struct board{
 };
 
 board_s* new_board(void);
+int reset_board(board_s* board);
 void free_board(board_s* board);
 void print_board(board_s* board);
-int random_board();
+int random_board(board_s* board);
+
+/* CLUES */
+
+#define TWO_BIOMES_CLUES_COUNT ((BI_COUNT*(BI_COUNT-1))>>1)  
+
+/* +1 because of the territorry case */
+#define ONE_TILE_MAX_CLUES_COUNT (BI_COUNT+1)
+
+#define TWO_TILES_MAX_CLUES_COUNT (CT_COUNT + TE_COUNT)
+
+#define THREE_TILES_MAX_CLUES_COUNT (CO_COUNT)
+
+#define TOTAL_CLUES_COUNT (TWO_BIOMES_CLUES_COUNT \
+  + ONE_TILE_MAX_CLUES_COUNT \
+  + TWO_TILES_MAX_CLUES_COUNT \
+  + THREE_TILES_MAX_CLUES_COUNT)
 
 typedef struct clues clues_s;
 struct clues{
-  board_s * b;
-  word doublebiome[(BI_COUNT*(BI_COUNT-1))>>1][BBLEN];
-  /* +1 because of the territorry case */
-  word bioOne[BI_COUNT+1][BBLEN];
-  word terctTwo[CT_COUNT+TE_COUNT][BBLEN];
-  word colorThree[CO_COUNT][BBLEN];
+  word two_biomes[TWO_BIOMES_CLUES_COUNT][BBLEN];
+  word one_tile_max[ONE_TILE_MAX_CLUES_COUNT][BBLEN];
+  word two_tiles_max[TWO_TILES_MAX_CLUES_COUNT][BBLEN];
+  word three_tiles_max[THREE_TILES_MAX_CLUES_COUNT][BBLEN];
 };
 
 clues_s* new_clues(board_s* board);
@@ -72,11 +89,6 @@ void print_clues(clues_s* clues);
 int init_clues(clues_s* ret, board_s* board);
 clues_s* copy_clues(clues_s* clues);
 clues_s* inverted_clues(clues_s* clues);
-
-#define TOTAL_CLUES_COUNT (((BI_COUNT*(BI_COUNT-1))>>1) \
-  + BI_COUNT + 1 \
-  + CT_COUNT + TE_COUNT \
-  + CO_COUNT)
 
 typedef struct player player_s;
 struct player{
@@ -92,7 +104,7 @@ struct player{
 typedef struct game game_s;
 struct game{
 	player_s* players;
-	board* board;
+	board_s* board;
 };
 
 /* return the index of wining player or -1 if game break*/

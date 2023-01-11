@@ -96,6 +96,12 @@ int unsetBB(word inBB[], word outBB[], size_t index){
   return 0;
 }
 
+int flushBB(word inBB[]){
+  for(size_t i = 0; i<BBLEN; i++)
+    inBB[i] = 0;
+
+  return 0;
+}
 int equalsBB(word aBB[], word bBB[]){
   int r = 1;
   for(size_t i = 0; i < BBLEN; i++)
