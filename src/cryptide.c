@@ -82,7 +82,7 @@ void print_board(board_s* b){
 
     printf(i&1 ? "\n" : "\n ");
   }
-  
+
   printf("\nTerritories\n------------\n");
 
   for(size_t i = 0; i < HEIGHT; i++){
@@ -102,7 +102,7 @@ void print_board(board_s* b){
   }
 
   printf("\nConstructs\n----------\n");
-  
+
   for(size_t i = 0; i < HEIGHT; i++){
     for(size_t j = 0; j < WIDTH; j++){
       char c = ' ';
@@ -144,7 +144,7 @@ size_t random_draw(size_t repartition[], size_t rep_len, size_t total){
 
 int random_board(board_s* board){
   size_t tiles_biomes[BI_COUNT] = {0};
-  
+
   for(size_t i = 0; i < BI_COUNT; i++)
     tiles_biomes[i] = LENGTH/BI_COUNT;
   for(size_t i = 0; i < LENGTH % BI_COUNT; i++)
@@ -180,7 +180,7 @@ int random_board(board_s* board){
       curBB = board->territories[i];
       setBB(curBB, curBB, rt-1);
     }
-    
+
     /* Constructs and colors */
     i = random_draw(tiles_constructs, CT_COUNT+1, rt);
     tiles_constructs[i] --;
@@ -191,6 +191,115 @@ int random_board(board_s* board){
       setBB(curBB, curBB, rt-1);
     }
   }
-
   return 0;
+}
+
+clues_s* new_clues(board_s* board){
+  word tmpBB[BBLEN] = {0};
+  clues_s tmp = {0};
+  clues_s* ret = malloc(sizeof(clues_s));
+  *ret = tmp;
+
+  /* DOUBLE BIOMES */
+  size_t count = 0;
+  for(size_t i = 0; i < BI_COUNT - 1; i++){
+    for(size_t j = i + 1; j < BI_COUNT; j++){
+      /*printf("%s(%c) OR %s(%c), count = %lu \n",arr_biname[i], arr_bichar[i],
+        arr_biname[j], arr_bichar[j], count);*/
+
+      /*
+         printBB(ret->two_biomes[count]);
+         */
+      unionBB(board->biomes[i], board->biomes[j], ret->two_biomes[count]);
+      /*printBB(ret->two_biomes[count]);
+
+        char buff[20];
+        fgets(buff, 19, stdin);
+        */
+
+      count++;
+    }
+  }
+
+  /* ONE TILE MAX */
+  for(size_t i = 0; i < BI_COUNT; i++)
+    adjacencyBB(board->biomes[i], ret->one_tile_max[i], 1);
+
+  for(size_t i = 0; i < TE_COUNT; i++)
+    unionBB(tmpBB, board->territories[i], tmpBB);
+
+  adjacencyBB(tmpBB, ret->one_tile_max[BI_COUNT], 1);
+
+  /* TWO TILES MAX */
+  for(size_t i = 0; i < TE_COUNT; i++)
+    adjacencyBB(board->territories[i], ret->two_tiles_max[i], 2);
+
+  for(size_t i = 0; i < CT_COUNT; i++)
+    adjacencyBB(board->constructs[i], ret->two_tiles_max[i+TE_COUNT], 2);
+
+  /* THREE TILES MAX */
+  for(size_t i = 0; i < CO_COUNT; i++)
+    adjacencyBB(board->colors[i], ret->three_tiles_max[i], 3);
+
+  return ret;
+}
+
+void free_clues(clues_s* clues){
+  free(clues);
+  clues = NULL;
+}
+
+void print_clues(clues_s* clues){
+  for(size_t i = 0; i < TOTAL_CLUES_COUNT; i++)
+    printBB(clues->two_biomes[i]);
+}
+
+clues_s* copy_clues(clues_s* clues){
+  clues_s* ret = malloc(sizeof(clues_s));
+  memcpy(ret, clues, sizeof(clues_s));
+  return ret;
+}
+
+clues_s* inverted_clues(clues_s* clues){
+  clues_s* ret = copy_clues(clues);
+  for(size_t i = 0; i < TOTAL_CLUES_COUNT; i++)
+    negBB(clues->two_biomes[i], ret->two_biomes[i]);
+
+  return ret;
+}
+
+void clues_dfs(clues_s* clues, size_t* ids, size_t nb, pop_count_f pc,
+    size_t depth, size_t curr[nb], word andBB[], size_t* count){
+  if(depth > 0){
+    for(size_t i = depth == nb ? 0 : curr[nb-1-depth] + 1; 
+        i<TOTAL_CLUES_COUNT; i++){
+      /* 16 bytes memory per node warning */
+      size_t id = ids ? ids[i] : i;
+      word tmpBB[BBLEN] = {0};
+
+      if(depth == nb)
+        copyBB(tmpBB, clues->two_biomes[id]);
+      else
+        interBB(andBB, clues->two_biomes[id], tmpBB);
+
+      size_t nb_elt = popcountBB(tmpBB, pc);
+
+      /* rec call */
+      if(depth > 1 && nb_elt > 2){
+        curr[nb-depth] = i;
+        clues_dfs(clues, ids, nb, pc, depth - 1, curr, tmpBB, count);
+      }
+      if(depth == 1 && nb_elt == 1){
+        curr[nb-depth] = i;
+        /*
+        printf("possible clues subset :"); 
+        for(size_t j = 0; j < nb; j++)
+          printf("(%lu) ", ids ? ids[curr[j]] : curr[j]);
+
+        printf("\n");
+        */
+        *count += 1;
+      }
+    }
+  }
 }

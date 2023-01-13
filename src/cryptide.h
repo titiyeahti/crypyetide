@@ -86,9 +86,10 @@ struct clues{
 clues_s* new_clues(board_s* board);
 void free_clues(clues_s* clues);
 void print_clues(clues_s* clues);
-int init_clues(clues_s* ret, board_s* board);
 clues_s* copy_clues(clues_s* clues);
 clues_s* inverted_clues(clues_s* clues);
+void clues_dfs(clues_s* clues, size_t* ids, size_t nb, pop_count_f pc,
+    size_t depth, size_t curr[nb], word andBB[], size_t* count);
 
 typedef struct player player_s;
 struct player{

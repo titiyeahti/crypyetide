@@ -50,6 +50,15 @@ int unionBB(word aBB[], word bBB[], word outBB[]){
   for(size_t i = 0; i < BBLEN; i++)
     outBB[i] = aBB[i] | bBB[i];
 
+  /*
+  printBB(aBB);
+  printBB(bBB);
+
+  printBB(outBB);
+
+  char buff[10];
+  fgets(buff, 9, stdin);
+  */
   return 0;
 }
 
@@ -102,12 +111,20 @@ int flushBB(word inBB[]){
 
   return 0;
 }
+
 int equalsBB(word aBB[], word bBB[]){
   int r = 1;
   for(size_t i = 0; i < BBLEN; i++)
     r = r && (aBB[i] == bBB[i]);
 
   return r;
+}
+
+int iszeroBB(word inBB[]){
+  for(size_t i = 0; i < BBLEN; i++)
+    if(inBB[i]) return 0;
+
+  return 1;
 }
 
 int issetBB(word BB[], size_t index){
@@ -194,7 +211,6 @@ int adjacencyBB(word inBB[], word outBB[], size_t thickness){
       unionBB(accBB, tmpBB, accBB);
     }
     unionBB(accBB, outBB, outBB);
-    printBB(outBB);
   }
 
   return 0;
@@ -215,4 +231,43 @@ void printhexBB(word BB[]){
   for(size_t i = 0; i < BBLEN; i++)
     printf("0x%8.8x\n", BB[i]);
   putc('\n',stdout);
+}
+
+#if(WORDLEN==32)
+/* cf wikipedia hamming weight */
+size_t pop_count32(word w){
+  word m1 = 0x55555555;
+  word m2 = 0x33333333;
+  word m4 = 0x0F0F0F0F;
+  /* sums of two bits */
+  w -= (w>>1) & m1;
+  /* sums of four bits */
+  w = (w & m2) + ((w>>2) & m2);
+  /* sums of eight bits */
+  w = (w + (w>>4)) & m4;
+  /* sums of 16 bits */
+  w += (w>>8);
+  /* sums of 32 bits */
+  w += (w>>16);
+
+  /* 6 lowest bits */
+  size_t res = w&0x3F;
+  return res;
+}
+#endif
+
+size_t pop_count(word w){
+  size_t count;
+  for(count = 0; w; count ++)
+    w &= w-1;
+
+  return count;
+}
+
+size_t popcountBB(word inBB[], pop_count_f pc){
+  size_t count = 0;
+  for(size_t i = 0; i < BBLEN; i++)
+    count += pc(inBB[i]);
+
+  return count;
 }

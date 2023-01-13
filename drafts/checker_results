@@ -1,0 +1,6 @@
+exec time : 1M5.6sec
+
+RESULTS FOR 100000 RANDOM BOARDS:
+3 PLAYERS : mean = 5.119480, nb_fails = 27060
+4 PLAYERS : mean = 126.496680, nb_fails = 1445
+5 PLAYERS : mean = 1228.591400, nb_fails = 19
