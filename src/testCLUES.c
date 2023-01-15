@@ -1,36 +1,31 @@
 #include "cryptide.h"
-#define SAMPLESIZE 100000
 
 int main(){
   init_dirBBmask();
+  board_s* board = new_board();
+  random_board(board);
 
-  size_t fails_count[3] = {0};
-  double mean_number[3] = {.0F, .0F, .0F};
+  clues_s* simple = new_clues(board, 0);
+  //clues_s* hard = new_clues(board, 1);
+  printf("SIMPLE \n\n");
+  //print_clues(1, simple);
+  //printf("HARD \n\n");
+  //print_clues(2, hard);
 
-  for(size_t i = 0; i < SAMPLESIZE; i++){
-    board_s* board = new_board();
-    random_board(board);
-    clues_s* clues = new_clues(board);
-
-    for(size_t nb=3; nb<6; nb++){
-      size_t count = 0;
-      size_t curr[nb];
-      word andBB[BBLEN] = {0};
-      clues_dfs(clues, NULL, nb, pop_count32, nb, curr, andBB, &count);
-      if(!count) 
-        fails_count[nb-3] += 1;
-      else 
-        mean_number[nb-3] += count / (double) SAMPLESIZE;
-    }
-
-    free(board);
-    free(clues);
+  for(size_t nb = 3; nb<6; nb++){
+    size_t count = 0;
+    size_t curr[nb];
+    word tmpBB[BBLEN];
+    clues_dfs(1, simple, NULL, nb, pop_count32, nb, curr, tmpBB, &count);
+    printf("LEN = 1, NB = %lu, COUNT = %lu\n\n", nb, count);
+    count = 0;
+    //clues_dfs(2, hard, NULL, nb, pop_count32, nb, curr, tmpBB, &count);
+    //printf("LEN = 2, NB = %lu, COUNT = %lu\n\n", nb, count);
   }
 
-  printf("RESULTS FOR %lu RANDOM BOARDS:\n", SAMPLESIZE);
-  for(size_t i = 3; i < 6; i++)
-    printf("%lu PLAYERS : mean = %lf, nb_fails = %lu\n", 
-        i, mean_number[i-3], fails_count[i-3]);
+  free_board(board);
+  free_clues(simple);
+  //free_clues(hard);
 
   return EXIT_SUCCESS;
 }

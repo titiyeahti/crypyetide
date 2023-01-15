@@ -83,13 +83,14 @@ struct clues{
   word three_tiles_max[THREE_TILES_MAX_CLUES_COUNT][BBLEN];
 };
 
-clues_s* new_clues(board_s* board);
+clues_s* new_clues(board_s* board, int inv);
 void free_clues(clues_s* clues);
-void print_clues(clues_s* clues);
-clues_s* copy_clues(clues_s* clues);
-clues_s* inverted_clues(clues_s* clues);
-void clues_dfs(clues_s* clues, size_t* ids, size_t nb, pop_count_f pc,
-    size_t depth, size_t curr[nb], word andBB[], size_t* count);
+void print_clues(size_t len, clues_s clues[len]);
+clues_s* copy_clues(size_t len, clues_s clues[len]);
+void inverted_clues(clues_s* src, clues_s* dest);
+void clues_dfs(size_t len, clues_s clues[len], size_t* ids, size_t nb, 
+    pop_count_f pc,size_t depth, size_t curr[nb], 
+    word andBB[], size_t* count);
 
 typedef struct player player_s;
 struct player{
