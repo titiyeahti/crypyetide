@@ -257,71 +257,17 @@ void inverted_clues(clues_s* src, clues_s* dest){
 }
 
 
-/* NOT WORKING */
-int find_clues_dfs__(clues_s* clues, size_t* ids, size_t nb, pop_count_f pc,
-    size_t curr[nb]){
 
-  size_t depth = nb;
-  size_t id;
-  size_t i;
-  int flag = 0;
-  word tmpBB[BBLEN];
-  word andBB[BBLEN];
-
-  for(;;){
-    if(flag)
-      i = curr[nb-depth] + 1;
-    /* i if one level deeper */
-    else 
-      i = (depth == nb ? 0 : curr[nb-1-depth] + 1);
-
-    flag = 0;
-
-    for(; i<TOTAL_CLUES_COUNT; i++){
-      id = ids ? ids[i] : i;
-
-      if(depth == nb)
-        copyBB(tmpBB, clues->two_biomes[id]);
-      else
-        interBB(andBB, clues->two_biomes[id], tmpBB);
-
-      size_t nb_elt = popcountBB(tmpBB, pc);
-
-      /* rec call */
-      if(depth > 1 && nb_elt > 2){
-        curr[nb-depth] = i;
-        depth --;
-        break;
-      }
-
-      /* found target */
-      if(depth == 1 && nb_elt == 1){
-        curr[nb-depth] = i;
-        return  1;
-      }
-    }
-
-    if(i==TOTAL_CLUES_COUNT){
-      if(depth == nb)
-        break;
-      depth ++;
-    }
-  }
-
-  return 0;
-}
-
-int find_clues(clues_s* clues);
-
-/* TODO : better handling of ids */
+/* TODO : better handling of ids -> DONE */
+/* TODO debug */
 int check_clues(size_t len, clues_s clues[len], size_t* ids,
-    size_t nb, size_t curr[nb]){
-  word bottomBB[nb-1][BBLEN] = {0};
-  word topBB[nb-1][BBLEN] = {0};
-  size_t fixed_curr[nb] = {0};
-  
+    pop_count_f pc, size_t nb, size_t curr[nb]){
+  word bottomBB[nb-1][BBLEN];
+  word topBB[nb-1][BBLEN];
+  size_t fixed_curr[nb];
+
   for(size_t i = 0; i < nb; i++)
-    fixed_curr[nb] = ids ? ids[curr[i]] : curr[i];
+    fixed_curr[i] = ids ? ids[curr[i]] : curr[i];
 
   copyBB(bottomBB[0], clues->two_biomes[fixed_curr[0]]);
   copyBB(topBB[0], clues->two_biomes[fixed_curr[nb-1]]);
@@ -331,20 +277,58 @@ int check_clues(size_t len, clues_s clues[len], size_t* ids,
     interBB(topBB[i-1], clues->two_biomes[fixed_curr[nb-i-1]], topBB[i]);
   }
   
-  if(popcountBB(bottomBB[nb-1], pop_count32) < 1 || 
-      popcountBB(topBB[nb-1], pop_count32) < 1)
+  if(popcountBB(bottomBB[nb-2], pc) < 2 || 
+      popcountBB(topBB[nb-2], pc) < 2)
     return 0;
 
-  /* INDICES TO FIX TODO */
-  for(size_t k = 1; k<nb-2; k++){
+  /* INDICES TO FIX TODO -> done*/
+  /* nb elt, nb-1 inter in bottomBB and top BB
+   * k = 1, k < nb-1 -> nb-2 loop
+   */
+  /* look out for indices 
+   * k = 1 
+   * */
+  for(size_t k = 1; k<nb-1; k++){
     word tmpBB[BBLEN] = {0};
-    interBB(topBB[nb-k-1], bottomBB[k-1], tmpBB);
-    size_t card = popcountBB(tmpBB, pop_count32);
-    if(card < 1)
+    interBB(topBB[nb-k-2], bottomBB[k-1], tmpBB);
+    size_t card = popcountBB(tmpBB, pc);
+    if(card < 2)
       return 0;
   }
 
   return 1;
+}
+
+int find_clues(size_t len, clues_s clues[len], size_t* ids, size_t nb, 
+    pop_count_f pc, size_t depth, size_t curr[nb], word andBB[]){
+  if(depth > 0){
+    for(size_t i = depth == nb ? 0 : curr[nb-1-depth] + 1; 
+        i<TOTAL_CLUES_COUNT*len; i++){
+      /* 16 bytes memory per node warning */
+      size_t id = ids ? ids[i] : i;
+      word tmpBB[BBLEN] = {0};
+
+      if(depth == nb)
+        copyBB(tmpBB, clues->two_biomes[id]);
+      else
+        interBB(andBB, clues->two_biomes[id], tmpBB);
+
+      size_t nb_elt = popcountBB(tmpBB, pc);
+
+      /* rec call */
+      if(depth > 1 && nb_elt > 1){
+        curr[nb-depth] = i;
+        if(find_clues(len, clues, ids, nb, pc, depth - 1, curr, tmpBB))
+          return 1;
+      }
+      if(depth == 1 && nb_elt == 1){
+        curr[nb-depth] = i;
+        return check_clues(len, clues, ids, pc, nb, curr);
+      }
+    }
+    return 0;
+  }
+  return 0;
 }
 
 
@@ -366,7 +350,7 @@ void clues_dfs(size_t len, clues_s clues[len], size_t* ids, size_t nb,
       size_t nb_elt = popcountBB(tmpBB, pc);
 
       /* rec call */
-      if(depth > 1 && nb_elt > 2){
+      if(depth > 1 && nb_elt > 1){
         curr[nb-depth] = i;
         clues_dfs(len, clues, ids, nb, pc, depth - 1, curr, tmpBB, count);
       }
@@ -379,7 +363,7 @@ void clues_dfs(size_t len, clues_s clues[len], size_t* ids, size_t nb,
 
         printf("\n");
         */
-        *count += 1;
+        *count += check_clues(len, clues, ids, pc, nb, curr);
       }
     }
   }

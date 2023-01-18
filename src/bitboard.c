@@ -224,13 +224,13 @@ void printBB(word BB[]){
     printf(i&1 ? "\n" : "\n ");
   }
 
-  putc('\n',stdout);
+  printf("\n");
 }
 
 void printhexBB(word BB[]){
   for(size_t i = 0; i < BBLEN; i++)
     printf("0x%8.8x\n", BB[i]);
-  putc('\n',stdout);
+  printf("\n");
 }
 
 #if(WORDLEN==32)

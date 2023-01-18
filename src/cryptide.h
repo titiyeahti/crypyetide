@@ -88,6 +88,10 @@ void free_clues(clues_s* clues);
 void print_clues(size_t len, clues_s clues[len]);
 clues_s* copy_clues(size_t len, clues_s clues[len]);
 void inverted_clues(clues_s* src, clues_s* dest);
+int check_clues(size_t len, clues_s clues[len], size_t* ids,
+    pop_count_f pc, size_t nb, size_t curr[nb]);
+int find_clues(size_t len, clues_s clues[len], size_t* ids, size_t nb, 
+    pop_count_f pc, size_t depth, size_t curr[nb], word andBB[]);
 void clues_dfs(size_t len, clues_s clues[len], size_t* ids, size_t nb, 
     pop_count_f pc,size_t depth, size_t curr[nb], 
     word andBB[], size_t* count);
