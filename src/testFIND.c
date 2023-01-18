@@ -7,7 +7,7 @@ int main(int argc, char* argv[]){
   size_t sample_size = strtoul(argv[1], NULL, 10);
   clock_t c;
   clock_t cmax[2][3] = {0};
-  double cmean[2][3] = {.0};
+  clock_t sum[2][3] = {.0};
   init_dirBBmask();
   board_s* board = new_board();
 
@@ -33,16 +33,18 @@ int main(int argc, char* argv[]){
         if(c > cmax[inv][nb-3])
           cmax[inv][nb-3] = c;
 
-        cmean[inv][nb-3] += c/sample_size;
+        sum[inv][nb-3] += c;
       }
     }
   }
 
+  free_board(board);
+
   for(int inv = 0; inv <2; inv ++){
     for(size_t nb = 3; nb < 6; nb++){
-      printf("%lu PLAYERS, HARDMODE = %d, max = %lf, mean = %lf\n",
+      printf("%lu PLAYERS, HARDMODE = %d, max = %le, mean = %le\n",
           nb, inv, (double) cmax[inv][nb-3]/CLOCKS_PER_SEC, 
-          cmean[inv][nb-3]/CLOCKS_PER_SEC);
+          sum[inv][nb-3]/(double) CLOCKS_PER_SEC/ (double) sample_size);
     }
   }
   return 0;
