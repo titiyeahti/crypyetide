@@ -143,6 +143,7 @@ size_t random_draw(size_t repartition[], size_t rep_len, size_t total){
 }
 
 int random_board(board_s* board){
+  reset_board(board);
   size_t tiles_biomes[BI_COUNT] = {0};
 
   for(size_t i = 0; i < BI_COUNT; i++)
@@ -281,13 +282,6 @@ int check_clues(size_t len, clues_s clues[len], size_t* ids,
       popcountBB(topBB[nb-2], pc) < 2)
     return 0;
 
-  /* INDICES TO FIX TODO -> done*/
-  /* nb elt, nb-1 inter in bottomBB and top BB
-   * k = 1, k < nb-1 -> nb-2 loop
-   */
-  /* look out for indices 
-   * k = 1 
-   * */
   for(size_t k = 1; k<nb-1; k++){
     word tmpBB[BBLEN] = {0};
     interBB(topBB[nb-k-2], bottomBB[k-1], tmpBB);
@@ -368,3 +362,82 @@ void clues_dfs(size_t len, clues_s clues[len], size_t* ids, size_t nb,
     }
   }
 }
+
+game_s* new_game(size_t nb, int inv){
+  game_s* ret = malloc(sizeof(game_s));
+  ret->nb_players = nb;
+  ret->clues_len = (size_t) inv + 1;
+  ret->board = new_board();
+  ret->players = malloc(sizeof(player_s)*ret->nb_players);
+  
+  for(size_t i = 0; i < ret->nb_players; i++){
+    flushBB(ret->players[i].answers[0]);
+    flushBB(ret->players[i].answers[1]);
+  }
+
+  size_t ids_len = TOTAL_CLUES_COUNT*ret->clues_len;
+  size_t ids[ids_len];
+  
+  // init
+  for(size_t i = 0; i < ids_len; i++){
+    ids[i] = i;
+  }
+
+  // shuffle
+  for(size_t i = 0; i < ids_len-1; i++){
+    // random draw between current id and the end 
+    size_t rd = (rand() % (ids_len-i)) + i;
+    size_t tmp = ids[i];
+    ids[i] = ids[rd];
+    ids[rd] = tmp;
+  }
+
+  size_t curr[nb];
+  for(;;){
+    random_board(ret->board);
+    ret->clues = new_clues(ret->board, inv);
+    if(find_clues(ret->clues_len, ret->clues, ids, ret->nb_players, 
+          pop_count32, ret->nb_players, curr, NULL)){
+      
+      for(size_t i = 0; i < ret->nb_players; i++)
+        ret->players[i].clue_id = ids[curr[i]];
+
+      break;
+    }
+
+    free_clues(ret->clues);
+  }
+
+  return ret;
+}
+
+void free_game(game_s* game){
+  free(game->players);
+  game->players = NULL;
+  free_board(game->board);
+  free_clues(game->clues);
+  free(game);
+}
+
+int ask_player(game_s* game, size_t player_id, size_t tile){
+  if(tile >= LENGTH)
+    return -1;
+
+  word tmpBB[BBLEN] = {0};
+
+  /* checks if someone asked for this tile
+   * is it necessary here ? */
+  for(size_t i = 0; i < game->nb_players; i++){
+    unionBB(game->players[i].answers[0], tmpBB, tmpBB);
+    unionBB(game->players[i].answers[1], tmpBB, tmpBB);
+  }
+
+  if(issetBB(tmpBB, tile))
+    return -1;
+
+  /* totally not obufcated line*/
+  return issetBB(game->clues->two_biomes[game->players[player_id].clue_id], 
+      tile);
+}
+
+

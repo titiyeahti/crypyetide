@@ -129,7 +129,7 @@ int iszeroBB(word inBB[]){
 
 int issetBB(word BB[], size_t index){
   assert(index < LENGTH);
-  return BB[index >> WORDPOW] & (1U << (index & (WORDLEN-1)));
+  return (BB[index >> WORDPOW] & (1U << (index & (WORDLEN-1)))) != 0;
 }
 
 int fixlastwordBB(word inBB[], word outBB[]){

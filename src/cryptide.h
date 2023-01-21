@@ -71,9 +71,9 @@ int random_board(board_s* board);
 #define THREE_TILES_MAX_CLUES_COUNT (CO_COUNT)
 
 #define TOTAL_CLUES_COUNT (TWO_BIOMES_CLUES_COUNT \
-  + ONE_TILE_MAX_CLUES_COUNT \
-  + TWO_TILES_MAX_CLUES_COUNT \
-  + THREE_TILES_MAX_CLUES_COUNT)
+    + ONE_TILE_MAX_CLUES_COUNT \
+    + TWO_TILES_MAX_CLUES_COUNT \
+    + THREE_TILES_MAX_CLUES_COUNT)
 
 typedef struct clues clues_s;
 struct clues{
@@ -98,26 +98,26 @@ void clues_dfs(size_t len, clues_s clues[len], size_t* ids, size_t nb,
 
 typedef struct player player_s;
 struct player{
-  word neg_answer[BBLEN];
-  word pos_answer[BBLEN];
-  /* when the clue is no longer relevant set its slot to NULL*/
-  word* valid_clues[TOTAL_CLUES_COUNT];
-  /* same as upper but not and array if no advanced clues */
-  word** valid_inv_clues; 
-  size_t nb_clues;
+  size_t clue_id;
+  word answers[2][BBLEN];
 };
 
 typedef struct game game_s;
 struct game{
-	player_s* players;
-	board_s* board;
+  size_t nb_players;
+  size_t clues_len; //1 or 2
+  board_s* board;
+  clues_s* clues;
+  player_s* players;
 };
 
-/* return the index of wining player or -1 if game break*/
-int run(game_s* g);
+game_s* new_game(size_t nb, int inv);
 
-/* multi
- * display
+void free_game(game_s* game);
+
+/* 0 nergative response
+ * 1 positive response
+ * -1 error
  */
-
+int ask_player(game_s* game, size_t id_player, size_t tile);
 #endif
